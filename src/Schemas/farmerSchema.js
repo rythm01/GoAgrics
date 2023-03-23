@@ -22,6 +22,7 @@ const farmerSchema = new mongoose.Schema({
     //     l_Image: Buffer,
     //     l_Area : Number,
     // }
+    
 });
 
 const farmer = mongoose.model("farmer",farmerSchema);
