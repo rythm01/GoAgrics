@@ -1,5 +1,7 @@
 const express = require('express');
 const router = express.Router();
+const token = require('../helper/token');
+const verifyToken = require('../middlewares/verifyToken');
 const farmer = require('../Schemas/farmerSchema');
 const labour = require('../Schemas/labourSchema');
 const dealer = require('../Schemas/dealerSchema');
@@ -51,9 +53,18 @@ router.post('/login', async (req, res) => {
             pincode: pincode,
             phoneNo: mobno,
          });
-         await user.save();
+
+         const result = await user.save();
+         const accessToken = token.generateAccessToken(result._id);
+         const refreshToken = token.generateRefreshToken(result._id);
+
+         res.status(201).send({
+            message: "Farmer registration done successfully",
+            accessToken: accessToken,
+            refreshToken: refreshToken
+         });
       }
-      if (category === "Labour") {
+      else if (category === "Labour") {
          const user = new labour({
             lname: name,
             category: category,
@@ -61,9 +72,18 @@ router.post('/login', async (req, res) => {
             pincode: pincode,
             phoneNo: mobno,
          });
-         await user.save();
+
+         const result = await user.save();
+         const accessToken = token.generateAccessToken(result._id);
+         const refreshToken = token.generateRefreshToken(result._id);
+
+         res.status(201).send({
+            message: "Labour registration done successfully",
+            accessToken: accessToken,
+            refreshToken: refreshToken
+         });
       }
-      if (category === "Dealer") {
+      else if (category === "Dealer") {
          const user = new dealer({
             dname: name,
             category: category,
@@ -71,7 +91,21 @@ router.post('/login', async (req, res) => {
             pincode: pincode,
             phoneNo: mobno,
          });
-         await user.save();
+
+         const result = await user.save();
+         const accessToken = token.generateAccessToken(result._id);
+         const refreshToken = token.generateRefreshToken(result._id);
+
+         res.status(201).send({
+            message: "Dealer registration done successfully",
+            accessToken: accessToken,
+            refreshToken: refreshToken
+         });
+      }
+      else {
+         res.status(400).send({
+            message: "Please select valid category"
+         })
       }
    }
 });
@@ -139,14 +173,16 @@ async function postDealer(req, res) {
    }
 }
 
+router.route('/resetToken')
+      .post(token.resetToken);
 
 router
    .route('/farmer/work')
-   .get(getLabours);
+   .get(verifyToken, getLabours);
 
 router
    .route('/farmer/deal')
-   .get(getDeals);
+   .get(verifyToken, getDeals);
 
 
 async function getLabours(req, res) {
