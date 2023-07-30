@@ -1,5 +1,7 @@
 const express = require('express');
 const router = express.Router();
+const token = require('../utils/token');
+const verifyToken = require('../middleware/verifyToken');
 const farmer = require('../Schemas/farmerSchema');
 const labour = require('../Schemas/labourSchema');
 const dealer = require('../Schemas/dealerSchema');
@@ -28,53 +30,6 @@ const fetchToolImage = (toolName) => {
          return defaultImageUrl;
       });
 };
-
-// user page login
-router.post('/login', async (req, res) => {
-   const { name, category, address, pincode, mobno } = req.body;
-
-   if (!name || !category || !address || !pincode || !mobno) {
-      res.status(404).send({ message: "Please enter valid details" });
-   }
-   if (pincode.length != 6) {
-      res.status(404).send({ message: "Please enter valid pincode!" });
-   }
-   if (mobno.length != 10) {
-      res.status(404).send({ message: "Please enter valid Mobile Number" });
-   }
-   else {
-      if (category === "Farmer") {
-         const user = new farmer({
-            fname: name,
-            category: category,
-            address: address,
-            pincode: pincode,
-            phoneNo: mobno,
-         });
-         await user.save();
-      }
-      if (category === "Labour") {
-         const user = new labour({
-            lname: name,
-            category: category,
-            address: address,
-            pincode: pincode,
-            phoneNo: mobno,
-         });
-         await user.save();
-      }
-      if (category === "Dealer") {
-         const user = new dealer({
-            dname: name,
-            category: category,
-            address: address,
-            pincode: pincode,
-            phoneNo: mobno,
-         });
-         await user.save();
-      }
-   }
-});
 
 router
    .route('/labour')
@@ -139,14 +94,16 @@ async function postDealer(req, res) {
    }
 }
 
+router.route('/resetToken')
+      .post(token.resetToken);
 
 router
    .route('/farmer/work')
-   .get(getLabours);
+   .get(verifyToken, getLabours);
 
 router
    .route('/farmer/deal')
-   .get(getDeals);
+   .get(verifyToken, getDeals);
 
 
 async function getLabours(req, res) {
