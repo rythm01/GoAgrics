@@ -27,11 +27,5 @@ const dealerSchema = new mongoose.Schema({
     ],
     
 });
-
-
-
 const dealer = mongoose.model("dealer",dealerSchema);
-
-
-
 module.exports = dealer;
