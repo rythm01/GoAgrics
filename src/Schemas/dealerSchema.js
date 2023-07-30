@@ -19,13 +19,16 @@ const dealerSchema = new mongoose.Schema({
         required : true,
         unique : true
     },
+    bid: {
+        type : Number,
+        required : true,
+    },
     tools : [
         {
-            img:String, //pendig for buffer string.....
+            img:String,
             tname:String
         }
-    ],
-    
+    ],  
 });
 const dealer = mongoose.model("dealer",dealerSchema);
 module.exports = dealer;
