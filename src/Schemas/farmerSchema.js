@@ -28,6 +28,17 @@ const landDetailsSchema = new mongoose.Schema({
 });
 
 const farmerSchema = new mongoose.Schema({
+    Avatar:
+    {
+        public_id: {
+            type: String,
+            required: true,
+        },
+        url: {
+            type: String,
+            required: true,
+        },
+    },
     fname: {
         type: String,
         required: [true, "Please enter your name"],
@@ -47,8 +58,9 @@ const farmerSchema = new mongoose.Schema({
         required: true,
     },
     phoneNo: {
-        type: String,
-        required: true
+        type: Number,
+        unique: true,
+        required: [true,"Please Enter Your Phone No"],
     },
     landDetails: [landDetailsSchema],
 });

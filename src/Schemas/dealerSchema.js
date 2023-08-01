@@ -1,6 +1,17 @@
 const mongoose = require('mongoose');
 
 const dealerSchema = new mongoose.Schema({
+    Avatar:
+    {
+        public_id: {
+            type: String,
+            required: true,
+        },
+        url: {
+            type: String,
+            required: true,
+        },
+    },
     dname: {
         type : String,
         required: true
@@ -15,13 +26,13 @@ const dealerSchema = new mongoose.Schema({
     },
     address : String,
     phoneNo: {
-        type : String,
+        type : Number,
         required : true,
         unique : true
     },
     bid: {
         type : Number,
-        required : true,
+        // required : true,
     },
     tools : [
         {
