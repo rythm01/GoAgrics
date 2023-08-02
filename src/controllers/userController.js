@@ -1,6 +1,5 @@
 const ErrorHandler = require('../utils/errorhandler');
 const catchAsyncErrors = require('../middleware/catchAsyncErrors');
-
 const token = require('../utils/token');
 const verifyToken = require('../middleware/verifyToken');
 const farmer = require('../Schemas/farmerSchema');
@@ -86,3 +85,4 @@ exports.registerUser = catchAsyncErrors(async (req, res, next) => {
         }
     }
 })
+

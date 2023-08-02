@@ -1,5 +1,22 @@
 const mongoose = require('mongoose');
 
+const toolDetailsSchema = new mongoose.Schema({
+    t_Images: [{
+        public_id: {
+            type: String,
+            required: true,
+        },
+        url: {
+            type: String,
+            required: true,
+        }
+    }],
+    t_Price: {
+        type: Number,
+        required: true,
+    }
+})
+
 const landDetailsSchema = new mongoose.Schema({
     l_Images: [
         {
@@ -25,6 +42,16 @@ const landDetailsSchema = new mongoose.Schema({
         type: Number,
         required: true,
     },
+    bidDetails: [
+        {
+            dealerId: {
+                type: String
+            },
+            bPrice: {
+                type: Number
+            }
+        }
+    ]
 });
 
 const farmerSchema = new mongoose.Schema({
@@ -47,10 +74,12 @@ const farmerSchema = new mongoose.Schema({
         required: true,
     },
     phoneNo: {
-        type: String,
-        required: true
+        type: Number,
+        required: true,
+        unique: [true, "User Already Registered!!!"],
     },
     landDetails: [landDetailsSchema],
+    toolDetails: [toolDetailsSchema]
 });
 
 const farmer = mongoose.model("farmer", farmerSchema);

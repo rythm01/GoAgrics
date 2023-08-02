@@ -2,7 +2,6 @@ require('dotenv').config();
 const express = require('express');
 require("./src/db/conn");
 const bodyParser = require('body-parser');
-const router = require('./src/routes/router');
 const fileupload = require("express-fileupload");
 const app = express();
 const port = process.env.PORT || 3000;
@@ -17,7 +16,10 @@ process.on("uncaughtException", (err) => {
 
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
-app.use(router);
+app.use(fileupload({
+    useTempFiles:true
+}))
+
 
 app.listen(port, () => {
     console.log(`connection is live at port no ${port}`);
@@ -29,7 +31,13 @@ app.get("/", async (req, res) => {
 
 const user = require("./src/routes/userRoute");
 
+const farmer = require("./src/routes/farmerRoute");
+
+const dealer = require("./src/routes/dealerRoute");
+
 app.use("/api",user);
+app.use("/api",farmer);
+app.use("/api",dealer);
 
 // unhandled promise rejection
 process.on("unhandledRejection",(err)=>{
