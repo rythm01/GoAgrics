@@ -1,5 +1,11 @@
 const ErrorHandler = require('../utils/errorhandler');
+const twilio = require('twilio');
 const catchAsyncErrors = require('../middleware/catchAsyncErrors');
+const accountSid = process.env.TWILIO_ACCOUNT_SID;
+const authToken = process.env.TWILIO_AUTH_TOKEN;
+const phoneNo = process.env.TWILIO_PHONE_NUMBER;
+
+const client = new twilio(accountSid, authToken);
 
 const token = require('../utils/token');
 const farmer = require('../Schemas/farmerSchema');
@@ -56,7 +62,7 @@ exports.registerUser = catchAsyncErrors(async (req, res, next) => {
 
     if (category === "Farmer") {
         const user = new farmer({
-            Avatar : avatar,
+            Avatar: avatar,
             fname: name,
             category: category,
             address: address,
@@ -76,7 +82,7 @@ exports.registerUser = catchAsyncErrors(async (req, res, next) => {
     }
     else if (category === "Labor") {
         const user = new labor({
-            Avatar : avatar,
+            Avatar: avatar,
             lname: name,
             category: category,
             address: address,
@@ -96,7 +102,7 @@ exports.registerUser = catchAsyncErrors(async (req, res, next) => {
     }
     else if (category === "Dealer") {
         const user = new dealer({
-            Avatar : avatar,
+            Avatar: avatar,
             dname: name,
             category: category,
             address: address,
@@ -121,3 +127,48 @@ exports.registerUser = catchAsyncErrors(async (req, res, next) => {
     }
 
 })
+
+exports.generateOtp = catchAsyncErrors(async (req, res, next) => {
+    const { mobno } = req.body;
+
+    if (!mobno || mobno.length !== 10) {
+        return next(new ErrorHandler("Please enter a valid Mobile Number", 400));
+    }
+
+    // Generate a random OTP (6 digits)
+    const otp = Math.floor(100000 + Math.random() * 900000);
+
+    try {
+        await client.messages.create({
+            body: `Your OTP for login is: ${otp}`,
+            from: `${phoneNo}`,
+            to: `+91${mobno}`
+        });
+
+        res.status(200).send({
+            message: "OTP sent successfully",
+            data: otp,
+        });
+    } catch (error) {
+        console.log(error);
+        return next(new ErrorHandler("Error sending OTP", 500));
+    }
+});
+
+exports.verifyOtp = catchAsyncErrors(async (req, res, next) => {
+    const { otp } = req.body;
+
+    if (!otp || otp.length !== 6) {
+        return next(new ErrorHandler("Please enter a valid OTP", 400));
+    }
+
+
+    const storedOtp = "123456"; //replace this stored otp with your preference storage
+
+    // Compare the user-provided OTP with the stored OTP
+    if (otp !== storedOtp) {
+        return res.status(200).json({ success: false, message: 'Invalid OTP' });
+    }
+
+    res.status(200).json({ success: true, message: 'OTP verified successfully' });
+});
