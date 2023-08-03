@@ -49,6 +49,7 @@ exports.registerFarmer = catchAsyncErrors(async (req, res, next) => {
             ],
             t_Price: t_price
 
+        }
 
         try {
             const f = await farmer.findOne({ _id: req.params.id });
