@@ -8,7 +8,7 @@ const cloudinary = require("cloudinary").v2;
 
 exports.registerDealer = catchAsyncErrors(async (req, res, next) => {
     try {
-        const { bid, t_price } = req.body;
+        const { t_price } = req.body;
         const tool = req.files.toolPhoto;
         try {
             toolImage = await cloudinary.uploader.upload(tool.tempFilePath, { folder: "dp" });
@@ -29,9 +29,8 @@ exports.registerDealer = catchAsyncErrors(async (req, res, next) => {
         }
 
         const d = await dealer.findOne({ _id: req.params.id });
-        // console.log(d);
+        console.log(d);
         d.toolDetails.push(toolData);
-        d.bid = bid;
         await d.save();
         res.status(200).json({ success: true, message: "Data updated successfully." });
 
