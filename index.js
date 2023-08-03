@@ -25,10 +25,6 @@ app.listen(port, () => {
     console.log(`connection is live at port no ${port}`);
 });
 
-app.get("/", async (req, res) => {
-    res.send("Namaste GoAgrics");
-});
-
 const user = require("./src/routes/userRoute");
 const labor = require("./src/routes/laborRoute");
 const farmer = require("./src/routes/farmerRoute");
