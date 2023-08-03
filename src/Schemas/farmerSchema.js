@@ -39,7 +39,7 @@ const landDetailsSchema = new mongoose.Schema({
         required: true,
     },
     l_Area: {
-        type: Number,
+        type: String,
         required: true,
     },
     bidDetails: [

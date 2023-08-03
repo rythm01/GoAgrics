@@ -13,6 +13,7 @@ exports.registerFarmer = catchAsyncErrors(async (req, res, next) => {
 
         const tool = req.files.toolPhoto;
 
+        t_price = Integer.parseInt(t_price);
         // console.log(land);
 
         try {
@@ -47,7 +48,6 @@ exports.registerFarmer = catchAsyncErrors(async (req, res, next) => {
                 }
             ],
             t_Price: t_price
-        }
 
 
         try {

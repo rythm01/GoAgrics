@@ -29,6 +29,7 @@ exports.registerDealer = catchAsyncErrors(async (req, res, next) => {
         }
 
         const d = await dealer.findOne({ _id: req.params.id });
+
         console.log(d);
         d.toolDetails.push(toolData);
         await d.save();
