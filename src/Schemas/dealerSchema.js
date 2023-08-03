@@ -1,5 +1,22 @@
 const mongoose = require('mongoose');
 
+const toolDetailsSchema = new mongoose.Schema({
+    t_Images: [{
+        public_id: {
+            type: String,
+            required: true,
+        },
+        url: {
+            type: String,
+            required: true,
+        }
+    }],
+    t_Price: {
+        type: Number,
+        required: true,
+    }
+})
+
 const dealerSchema = new mongoose.Schema({
     Avatar:
     {
@@ -13,33 +30,34 @@ const dealerSchema = new mongoose.Schema({
         },
     },
     dname: {
-        type : String,
+        type: String,
         required: true
     },
-    category : {
-        type : String,
-        required : true
+    category: {
+        type: String,
+        required: true
     },
-    pincode:{
+    pincode: {
         type: Number,
-        required : true
+        required: true
     },
-    address : String,
+    address: String,
     phoneNo: {
-        type : Number,
-        required : true,
-        unique : true
+        type: Number,
+        required: true,
+        unique: true
     },
-    bid: {
-        type : Number,
-        // required : true,
-    },
-    tools : [
+    bidDetails: [
         {
-            img:String,
-            tname:String
+            farmer_Id: {
+                type: String
+            },
+            bPrice: {
+                type: Number
+            }
         }
-    ],  
+    ],
+    toolDetails: [toolDetailsSchema]
 });
-const dealer = mongoose.model("dealer",dealerSchema);
+const dealer = mongoose.model("dealer", dealerSchema);
 module.exports = dealer;
