@@ -30,6 +30,12 @@ const labor = require("./src/routes/laborRoute");
 const farmer = require("./src/routes/farmerRoute");
 const dealer = require("./src/routes/dealerRoute");
 
+app.get("/",(req,res)=>{
+    res.json({
+        message:"Route obtained"
+    })
+})
+
 app.use("/api",user); // for registeration
 app.use("/api",labor);
 app.use("/api",farmer);
