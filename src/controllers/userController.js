@@ -15,8 +15,8 @@ const dealer = require('../Schemas/dealerSchema');
 const cloudinary = require("cloudinary").v2;
 
 cloudinary.config({
-    cloud_name: process.env.cloudName ,
-    api_key: process.env.apiKey ,
+    cloud_name: process.env.cloudName,
+    api_key: process.env.apiKey,
     api_secret: process.env.apiSecret
 });
 
@@ -134,41 +134,51 @@ exports.generateOtp = catchAsyncErrors(async (req, res, next) => {
     if (!mobno || mobno.length !== 10) {
         return next(new ErrorHandler("Please enter a valid Mobile Number", 400));
     }
-
-    // Generate a random OTP (6 digits)
-    const otp = Math.floor(100000 + Math.random() * 900000);
-
+    
     try {
-        await client.messages.create({
-            body: `Your OTP for login is: ${otp}`,
-            from: `${phoneNo}`,
-            to: `+91${mobno}`
-        });
+        const verification = await client.verify.v2.services(process.env.verifySid)
+            .verifications.create({ to: `+91${mobno}`, channel: "sms" });
 
-        res.status(200).send({
-            message: "OTP sent successfully",
-            data: otp,
-        });
-    } catch (error) {
-        console.log(error);
+        if (verification.status === "pending") {
+            return res.status(200).send({
+                message: "OTP sent successfully"
+            });
+        } else {
+            return next(new ErrorHandler("OTP not sent", 500));
+        }
+    } catch (err) {
+        console.error(err);
         return next(new ErrorHandler("Error sending OTP", 500));
     }
 });
 
 exports.verifyOtp = catchAsyncErrors(async (req, res, next) => {
-    const { otp } = req.body;
+    try {
+        const { phone, otp } = req.body;
 
-    if (!otp || otp.length !== 6) {
-        return next(new ErrorHandler("Please enter a valid OTP", 400));
+        if (!otp || otp.length !== 6) {
+            return next(new ErrorHandler("Please enter a valid OTP", 400));
+        }
+
+        if (!phone) {
+            return next(new ErrorHandler("Please provide phone number", 400));
+        }
+
+        const check = await client.verify.v2
+            .services(process.env.verifySid)
+            .verificationChecks.create({ to: `+91${phone}`, code: otp });
+
+        if (check.status === 'approved') {
+            console.log('OTP verified successfully.');
+            return res.status(200).send({
+                message: "Otp verified successfully"
+            });
+        } else {
+            console.log('OTP verification failed.');
+            return next(new ErrorHandler("Otp not verified", 401));
+        }
+    } catch (error) {
+        console.error(error.message);
+        return next(new ErrorHandler("Otp not verified", 500));
     }
-
-
-    const storedOtp = "123456"; //replace this stored otp with your preference storage
-
-    // Compare the user-provided OTP with the stored OTP
-    if (otp !== storedOtp) {
-        return res.status(200).json({ success: false, message: 'Invalid OTP' });
-    }
-
-    res.status(200).json({ success: true, message: 'OTP verified successfully' });
 });
