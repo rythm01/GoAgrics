@@ -38,27 +38,26 @@ exports.registerUser = catchAsyncErrors(async (req, res, next) => {
     }
 
     let avatar;
-    console.log(req.files.Avatar);
-    if (req.files.Avatar) {
-        // If user uploaded a file, save it in Cloudinary
+    console.log(req.file);
+    if (!req.file) {
+        // If no file uploaded, use the default avatar
+        avatar = {
+            public_id: "123",
+            url: "http://res.cloudinary.com/dijdjkiqv/image/upload/v1691246678/Avatar/hyee9fbp9ziddvasalrp.jpg"
+        };
+    } else {
         try {
-            const result = await cloudinary.uploader.upload(req.files.Avatar.tempFilePath, {
+            const result = await cloudinary.uploader.upload(req.file.path, {
                 folder: "Avatar"
             });
             avatar = {
                 public_id: result.public_id,
                 url: result.url,
             };
-            // await unlinkAsync(req.files.Avatar.tempFilePath);// Delete the temporary file from the server
         } catch (error) {
+            console.log(error);
             return next(new ErrorHandler("Error uploading avatar to Cloudinary", 500));
         }
-    } else {
-        // If no file uploaded, use the default avatar
-        avatar = {
-            public_id: "123",
-            url: "./images/anonymous.jpg",
-        };
     }
 
     if (category === "Farmer") {
@@ -131,12 +130,12 @@ exports.registerUser = catchAsyncErrors(async (req, res, next) => {
 
 exports.generateOtp = catchAsyncErrors(async (req, res, next) => {
     try {
-    const { mobno } = req.body;
+        const { mobno } = req.body;
 
-    if (!mobno || mobno.length !== 10) {
-        return next(new ErrorHandler("Please enter a valid Mobile Number", 400));
-    }
-    
+        if (!mobno || mobno.length !== 10) {
+            return next(new ErrorHandler("Please enter a valid Mobile Number", 400));
+        }
+
         const verification = await client.verify.v2.services(verificationsid)
             .verifications.create({ to: `+91${mobno}`, channel: "sms" });
 
