@@ -3,71 +3,45 @@ const catchAsyncErrors = require('../middleware/catchAsyncErrors');
 const farmer = require('../Schemas/farmerSchema');
 const cloudinary = require("cloudinary").v2;
 
+
 exports.registerFarmer = catchAsyncErrors(async (req, res, next) => {
-
     try {
-
-        const { l_price, type, area, t_price } = req.body;
-
-        const land = req.files.landPhoto;
-
-        const tool = req.files.toolPhoto;
-
-        t_price = Integer.parseInt(t_price);
-        // console.log(land);
-
-        try {
-
-            landImage = await cloudinary.uploader.upload(land.tempFilePath, { folder: "dp" });
-
-            toolImage = await cloudinary.uploader.upload(tool.tempFilePath, { folder: "dp" });
-
-
-        } catch (error) {
-            console.error(error);
-            return next(new ErrorHandler("Error uploading file to cloudinary", 400))
+        if (!req.files || Object.keys(req.files).length === 0) {
+            return next(new ErrorHandler("No files were uploaded", 400));
         }
 
+        const { l_price, type, area, t_price } = req.body;
+        const land = req.files.landPhoto;
+        const tool = req.files.toolPhoto;
+
+        const [landImage, toolImage] = await Promise.all([
+            cloudinary.uploader.upload(land[0].path, { folder: "lands" }),
+            cloudinary.uploader.upload(tool[0].path, { folder: "tools" })
+        ]);
+
         const landData = {
-            l_Images: [
-                {
-                    public_id: landImage.public_id,
-                    url: landImage.url
-                },
-            ],
+            l_Images: [{ public_id: landImage.public_id, url: landImage.url }],
             l_Type: type,
             l_Price: l_price,
             l_Area: area
-        }
+        };
 
         const toolData = {
-            t_Images: [
-                {
-                    public_id: toolImage.public_id,
-                    url: toolImage.url
-                }
-            ],
+            t_Images: [{ public_id: toolImage.public_id, url: toolImage.url }],
             t_Price: t_price
+        };
 
-        }
+        const f = await farmer.findOne({ _id: req.params.id });
+        f.landDetails.push(landData);
+        f.toolDetails.push(toolData);
+        await f.save();
 
-        try {
-            const f = await farmer.findOne({ _id: req.params.id });
-            f.landDetails.push(landData);
-            f.toolDetails.push(toolData);
-            await f.save();
-            res.status(200).json({ success: true, message: "Data updated successfully." });
-        } catch (error) {
-            console.log(error);
-            return next(new ErrorHandler("Updation Error", 400));
-        }
-
+        res.status(200).json({ success: true, message: "Data updated successfully." });
     } catch (error) {
-        console.log(error);
+        console.error(error);
         return next(new ErrorHandler("Updation Error", 400));
     }
-
-})
+});
 
 exports.getAllFarmerDetails = catchAsyncErrors(async (req, res, next) => {
     try {
@@ -148,13 +122,16 @@ exports.updateFarmer = catchAsyncErrors(async (req, res, next) => {
 
 exports.updateLand = catchAsyncErrors(async (req, res, next) => {
     try {
+        if (!req.files || Object.keys(req.files).length === 0) {
+            return next(new ErrorHandler("No files were uploaded", 400));
+        }
         const { l_price, type, area } = req.body;
         const land = req.files.landPhoto;
 
         // Upload the new land image to Cloudinary
         let updatedLandImage;
         try {
-            updatedLandImage = await cloudinary.uploader.upload(land.tempFilePath, { folder: 'dp' });
+            updatedLandImage = await cloudinary.uploader.upload(land[0].path, { folder: 'lands' });
         } catch (error) {
             console.log(error);
             return next(new ErrorHandler('Error in uploading to Cloudinary', 400));
@@ -198,11 +175,15 @@ exports.updateLand = catchAsyncErrors(async (req, res, next) => {
 
 exports.updateTool = catchAsyncErrors(async (req, res, next) => {
     try {
+        if (!req.files || Object.keys(req.files).length === 0) {
+            return next(new ErrorHandler("No files were uploaded", 400));
+        }
+
         const { t_price } = req.body;
         const tool = req.files.toolPhoto
         let updatedToolImage;
         try {
-            updatedToolImage = await cloudinary.uploader.upload(tool.tempFilePath, { folder: "dp" });
+            updatedToolImage = await cloudinary.uploader.upload(tool[0].path, { folder: "tools" });
         } catch (error) {
             console.log(error);
             return next(new ErrorHandler("Error in uploading to Cloudinary", 400));

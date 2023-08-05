@@ -2,8 +2,6 @@ require('dotenv').config();
 const express = require('express');
 require("./src/db/conn");
 const bodyParser = require('body-parser');
-// const router = require('./src/routes/router');
-const fileupload = require("express-fileupload");
 const app = express();
 const port = process.env.PORT || 3000;
 
@@ -17,9 +15,6 @@ process.on("uncaughtException", (err) => {
 
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
-app.use(fileupload({
-    useTempFiles: true
-}))
 
 app.listen(port, () => {
     console.log(`connection is live at port no ${port}`);

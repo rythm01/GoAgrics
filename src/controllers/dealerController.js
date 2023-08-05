@@ -8,38 +8,33 @@ const cloudinary = require("cloudinary").v2;
 
 exports.registerDealer = catchAsyncErrors(async (req, res, next) => {
     try {
-        const { t_price } = req.body;
-        const tool = req.files.toolPhoto;
-        try {
-            toolImage = await cloudinary.uploader.upload(tool.tempFilePath, { folder: "dp" });
-            // console.log(toolImage);
-        } catch (error) {
-            console.log(error);
-            return next(new ErrorHandler("Unable to change dealer", 400));
+        if (!req.files || Object.keys(req.files).length === 0) {
+            return next(new ErrorHandler("No files were uploaded", 400));
         }
 
+        const { t_price } = req.body;
+        const tool = req.files.toolPhoto;
+
+        const toolImage = await cloudinary.uploader.upload(tool[0].path, { folder: "tools" });
+
         const toolData = {
-            t_Images: [
-                {
-                    public_id: toolImage.public_id,
-                    url: toolImage.url
-                }
-            ],
+            t_Images: [{ public_id: toolImage.public_id, url: toolImage.url }],
             t_Price: t_price
-        }
+        };
 
         const d = await dealer.findOne({ _id: req.params.id });
 
         console.log(d);
         d.toolDetails.push(toolData);
         await d.save();
-        res.status(200).json({ success: true, message: "Data updated successfully." });
 
+        res.status(200).json({ success: true, message: "Data updated successfully." });
     } catch (error) {
-        console.log(error);
+        console.error(error);
         return next(new ErrorHandler("Unable to change dealer", 400));
     }
-})
+});
+
 
 exports.getDealerDetail = catchAsyncErrors(async (req, res, next) => {
     try {
@@ -103,11 +98,14 @@ exports.deleteDealer = catchAsyncErrors(async (req, res, next) => {
 
 exports.updateTool = catchAsyncErrors(async (req, res, next) => {
     try {
+        if (!req.files || Object.keys(req.files).length === 0) {
+            return next(new ErrorHandler("No files were uploaded", 400));
+        }
         const { t_price } = req.body;
         const tool = req.files.toolPhoto
         let updatedToolImage;
         try {
-            updatedToolImage = await cloudinary.uploader.upload(tool.tempFilePath, { folder: "dp" });
+            updatedToolImage = await cloudinary.uploader.upload(tool[0].path, { folder: "tools" });
         } catch (error) {
             console.log(error);
             return next(new ErrorHandler("Error in uploading to Cloudinary", 400));
@@ -231,46 +229,46 @@ exports.registerBid = catchAsyncErrors(async (req, res, next) => {
 
 exports.deleteBid = catchAsyncErrors(async (req, res, next) => {
     try {
-      const farmerDetails = await farmer.findById(req.params.farmerId);
-  
-      if (!farmerDetails) {
-        return next(new ErrorHandler("Farmer with land to delete a bid not found", 400));
-      }
-  
-      const landDetails = farmerDetails.landDetails.find((landDetail) => landDetail._id.toString() === req.params.landId);
-  
-      if (!landDetails) {
-        return next(new ErrorHandler("Land with bid to delete not found", 400));
-      }
-  
-      // Find the index of the bid details to remove
-      const farmerBidIndex = landDetails.bidDetails.findIndex(bid => bid.dealerId.toString() === req.params.dealerId);
-      if (farmerBidIndex !== -1) {
-        landDetails.bidDetails.splice(farmerBidIndex, 1);
-      }
-  
-      await farmerDetails.save();
-  
-      const dealerDetails = await dealer.findById(req.params.dealerId);
-      
-      if (!dealerDetails) {
-        return next(new ErrorHandler("Dealer with bid to delete not found", 400));
-      }
-  
-      // Find the index of the bid details to remove
-      const dealerBidIndex = dealerDetails.bidDetails.findIndex(bid => bid.farmer_Id.toString() === req.params.farmerId);
-      if (dealerBidIndex !== -1) {
-        dealerDetails.bidDetails.splice(dealerBidIndex, 1);
-      }
-  
-      await dealerDetails.save();
-  
-      res.status(200).json({
-        success: true,
-        message: "Bid deleted successfully",
-      });
+        const farmerDetails = await farmer.findById(req.params.farmerId);
+
+        if (!farmerDetails) {
+            return next(new ErrorHandler("Farmer with land to delete a bid not found", 400));
+        }
+
+        const landDetails = farmerDetails.landDetails.find((landDetail) => landDetail._id.toString() === req.params.landId);
+
+        if (!landDetails) {
+            return next(new ErrorHandler("Land with bid to delete not found", 400));
+        }
+
+        // Find the index of the bid details to remove
+        const farmerBidIndex = landDetails.bidDetails.findIndex(bid => bid.dealerId.toString() === req.params.dealerId);
+        if (farmerBidIndex !== -1) {
+            landDetails.bidDetails.splice(farmerBidIndex, 1);
+        }
+
+        await farmerDetails.save();
+
+        const dealerDetails = await dealer.findById(req.params.dealerId);
+
+        if (!dealerDetails) {
+            return next(new ErrorHandler("Dealer with bid to delete not found", 400));
+        }
+
+        // Find the index of the bid details to remove
+        const dealerBidIndex = dealerDetails.bidDetails.findIndex(bid => bid.farmer_Id.toString() === req.params.farmerId);
+        if (dealerBidIndex !== -1) {
+            dealerDetails.bidDetails.splice(dealerBidIndex, 1);
+        }
+
+        await dealerDetails.save();
+
+        res.status(200).json({
+            success: true,
+            message: "Bid deleted successfully",
+        });
     } catch (error) {
-      console.log(error);
-      return next(new ErrorHandler("Unable to delete bid", 400));
+        console.log(error);
+        return next(new ErrorHandler("Unable to delete bid", 400));
     }
-  });
+});
