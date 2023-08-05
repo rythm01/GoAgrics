@@ -6,6 +6,7 @@ const authToken = process.env.TWILIO_AUTH_TOKEN;
 const phoneNo = process.env.TWILIO_PHONE_NUMBER;
 
 const client = new twilio(accountSid, authToken);
+const verificationsid = process.env.verifysid;
 
 const token = require('../utils/token');
 const farmer = require('../Schemas/farmerSchema');
@@ -129,14 +130,14 @@ exports.registerUser = catchAsyncErrors(async (req, res, next) => {
 })
 
 exports.generateOtp = catchAsyncErrors(async (req, res, next) => {
+    try {
     const { mobno } = req.body;
 
     if (!mobno || mobno.length !== 10) {
         return next(new ErrorHandler("Please enter a valid Mobile Number", 400));
     }
     
-    try {
-        const verification = await client.verify.v2.services(process.env.verifySid)
+        const verification = await client.verify.v2.services(verificationsid)
             .verifications.create({ to: `+91${mobno}`, channel: "sms" });
 
         if (verification.status === "pending") {
@@ -165,7 +166,7 @@ exports.verifyOtp = catchAsyncErrors(async (req, res, next) => {
         }
 
         const check = await client.verify.v2
-            .services(process.env.verifySid)
+            .services(verificationsid)
             .verificationChecks.create({ to: `+91${phone}`, code: otp });
 
         if (check.status === 'approved') {
@@ -174,8 +175,8 @@ exports.verifyOtp = catchAsyncErrors(async (req, res, next) => {
                 message: "Otp verified successfully"
             });
         } else {
-            console.log('OTP verification failed.');
-            return next(new ErrorHandler("Otp not verified", 401));
+            console.log('Invalid Otp!');
+            return next(new ErrorHandler("Invalid Otp!", 401));
         }
     } catch (error) {
         console.error(error.message);
