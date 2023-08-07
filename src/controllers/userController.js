@@ -77,7 +77,8 @@ exports.registerUser = catchAsyncErrors(async (req, res, next) => {
         res.status(201).send({
             message: "Farmer registration done successfully",
             accessToken: accessToken,
-            refreshToken: refreshToken
+            refreshToken: refreshToken,
+            data : result
         });
     }
     else if (category === "Labor") {
@@ -97,7 +98,8 @@ exports.registerUser = catchAsyncErrors(async (req, res, next) => {
         res.status(201).send({
             message: "Labour registration done successfully",
             accessToken: accessToken,
-            refreshToken: refreshToken
+            refreshToken: refreshToken,
+            data : result
         });
     }
     else if (category === "Dealer") {
@@ -117,7 +119,8 @@ exports.registerUser = catchAsyncErrors(async (req, res, next) => {
         res.status(201).send({
             message: "Dealer registration done successfully",
             accessToken: accessToken,
-            refreshToken: refreshToken
+            refreshToken: refreshToken,
+            data : result
         });
     }
     else {
