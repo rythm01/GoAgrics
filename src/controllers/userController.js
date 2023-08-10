@@ -78,7 +78,7 @@ exports.registerUser = catchAsyncErrors(async (req, res, next) => {
             message: "Farmer registration done successfully",
             accessToken: accessToken,
             refreshToken: refreshToken,
-            data : result
+            data: result
         });
     }
     else if (category === "Labor") {
@@ -99,7 +99,7 @@ exports.registerUser = catchAsyncErrors(async (req, res, next) => {
             message: "Labour registration done successfully",
             accessToken: accessToken,
             refreshToken: refreshToken,
-            data : result
+            data: result
         });
     }
     else if (category === "Dealer") {
@@ -120,7 +120,7 @@ exports.registerUser = catchAsyncErrors(async (req, res, next) => {
             message: "Dealer registration done successfully",
             accessToken: accessToken,
             refreshToken: refreshToken,
-            data : result
+            data: result
         });
     }
     else {
@@ -167,15 +167,38 @@ exports.verifyOtp = catchAsyncErrors(async (req, res, next) => {
             return next(new ErrorHandler("Please provide phone number", 400));
         }
 
-        const check = await client.verify.v2
-            .services(verificationsid)
-            .verificationChecks.create({ to: `+91${phone}`, code: otp });
+        const existingLabor = await labor.findOne({ phoneNo: phone });
+        const existingDealer = await dealer.findOne({ phoneNo: phone });
+        const existingFarmer = await farmer.findOne({ phoneNo: phone });
+
+        let userFound = false;
+        let userData = null;
+
+        if (existingLabor) {
+            userFound = true;
+            userData = existingLabor;
+        } else if (existingDealer) {
+            userFound = true;
+            userData = existingDealer;
+        } else if (existingFarmer) {
+            userFound = true;
+            userData = existingFarmer;
+        }
+
+        const check = await client.verify.v2.services(verificationsid).verificationChecks.create({ to: `+91${phone}`, code: otp });
 
         if (check.status === 'approved') {
             console.log('OTP verified successfully.');
-            return res.status(200).send({
-                message: "Otp verified successfully"
-            });
+            if (userFound) {
+                return res.status(200).send({
+                    message: "Otp verified successfully",
+                    data: userData,
+                });
+            } else {
+                return res.status(200).send({
+                    message: "Otp verified successfully",
+                });
+            }
         } else {
             console.log('Invalid Otp!');
             return next(new ErrorHandler("Invalid Otp!", 401));
