@@ -65,6 +65,8 @@ exports.registerFarmerWithTool = catchAsyncErrors(async (req, res, next) => {
     }
 });
 
+
+
 exports.getAllFarmerDetails = catchAsyncErrors(async (req, res, next) => {
     try {
         const farmers = await farmer.find();

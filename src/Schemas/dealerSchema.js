@@ -47,6 +47,9 @@ const dealerSchema = new mongoose.Schema({
         required: true,
         unique: true
     },
+    city: {
+        type: String
+    },
     bidDetails: [
         {
             farmer_Id: {
