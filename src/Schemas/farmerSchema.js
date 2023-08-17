@@ -89,6 +89,9 @@ const farmerSchema = new mongoose.Schema({
         unique: true,
         required: [true, "Please Enter Your Phone No"],
     },
+    city:{
+        type:String
+    },
     landDetails: [landDetailsSchema],
     toolDetails: [toolDetailsSchema]
 });

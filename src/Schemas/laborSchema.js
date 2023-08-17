@@ -31,6 +31,9 @@ const laborSchema = new mongoose.Schema({
     pricePerDay: {
         type: Number,
     },
+    city:{
+        type:String
+    }
 });
 const labor = mongoose.model("labor", laborSchema);
 module.exports = labor;

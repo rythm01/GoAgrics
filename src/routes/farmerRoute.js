@@ -2,13 +2,15 @@ const express = require('express');
 const router = express.Router();
 const upload = require('../utils/multer');
 const verifyToken = require('../middleware/verifyToken');
-const {registerFarmer,getAllFarmerDetails,getFarmerDetail,deleteFarmer,updateFarmer,updateLand,updateTool,deleteLand,deleteTool} = require("../controllers/farmerController")
+const {getAllFarmerDetails,getFarmerDetail,deleteFarmer,updateFarmer,updateLand,updateTool,deleteLand,deleteTool, registerFarmerWithLand,registerFarmerWithTool} = require("../controllers/farmerController")
 
 
-router.route("/farmer/register/:id").put(verifyToken,upload.fields([
+router.route("/farmer/register/land/:id").put(verifyToken,upload.fields([
     { name: 'landPhoto', maxCount: 5 },
+]),registerFarmerWithLand);
+router.route("/farmer/register/tool/:id").put(verifyToken,upload.fields([
     { name: 'toolPhoto', maxCount: 5 },
-]),registerFarmer);
+]),registerFarmerWithTool);
 router.route("/farmers").get(verifyToken,getAllFarmerDetails);
 router.route("/farmer/:id").get(verifyToken,getFarmerDetail);
 router.route("/farmer/delete/:id").delete(verifyToken,deleteFarmer);

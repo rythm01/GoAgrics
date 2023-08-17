@@ -10,13 +10,11 @@ exports.registerFarmer = catchAsyncErrors(async (req, res, next) => {
             return next(new ErrorHandler("No files were uploaded", 400));
         }
 
-        const { l_price, type, area, t_price } = req.body;
+        const { l_price, type, area} = req.body;
         const land = req.files.landPhoto;
-        const tool = req.files.toolPhoto;
 
-        const [landImage, toolImage] = await Promise.all([
-            cloudinary.uploader.upload(land[0].path, { folder: "lands" }),
-            cloudinary.uploader.upload(tool[0].path, { folder: "tools" })
+        const [landImage] = await Promise.all([
+            cloudinary.uploader.upload(land[0].path, { folder: "lands" })
         ]);
 
         const landData = {
@@ -26,22 +24,48 @@ exports.registerFarmer = catchAsyncErrors(async (req, res, next) => {
             l_Area: area
         };
 
+        const f = await farmer.findOne({ _id: req.params.id });
+        f.landDetails.push(landData);
+        await f.save();
+
+        res.status(200).json({ success: true, message: "Land updated successfully." });
+    } catch (error) {
+        console.error(error);
+        return next(new ErrorHandler("Updation Error", 400));
+    }
+});
+
+exports.registerFarmerWithTool = catchAsyncErrors(async (req, res, next) => {
+    try {
+        if (!req.files || Object.keys(req.files).length === 0) {
+            return next(new ErrorHandler("No files were uploaded", 400));
+        }
+
+        const { t_price } = req.body;
+
+        const tool = req.files.toolPhoto;
+
+        const [toolImage] = await Promise.all([
+            cloudinary.uploader.upload(tool[0].path, { folder: "tools" })
+        ]);
+
         const toolData = {
             t_Images: [{ public_id: toolImage.public_id, url: toolImage.url }],
             t_Price: t_price
         };
 
         const f = await farmer.findOne({ _id: req.params.id });
-        f.landDetails.push(landData);
         f.toolDetails.push(toolData);
         await f.save();
 
-        res.status(200).json({ success: true, message: "Data updated successfully." });
+        res.status(200).json({ success: true, message: "Tool updated successfully." });
     } catch (error) {
         console.error(error);
         return next(new ErrorHandler("Updation Error", 400));
     }
 });
+
+
 
 exports.getAllFarmerDetails = catchAsyncErrors(async (req, res, next) => {
     try {
