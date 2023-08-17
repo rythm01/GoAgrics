@@ -4,7 +4,7 @@ const farmer = require('../Schemas/farmerSchema');
 const cloudinary = require("cloudinary").v2;
 
 
-exports.registerFarmer = catchAsyncErrors(async (req, res, next) => {
+exports.registerFarmerWithLand = catchAsyncErrors(async (req, res, next) => {
     try {
         if (!req.files || Object.keys(req.files).length === 0) {
             return next(new ErrorHandler("No files were uploaded", 400));
