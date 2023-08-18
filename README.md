@@ -11,3 +11,13 @@ Welcome to the Go Agrics Backend API, the core component of the Go Agrics IdeaTh
 - **JWT Token:**
 
 - **Node.js/Express Rest API:**
+
+- ## Screenshots 📱
+
+<table>
+<tr>
+<td ><img src="https://github.com/rythm01/GoAgrics/assets/115993280/f8ae9d29-ee7c-408e-9d86-112039342819" width="auto" height="auto" max-width="100%"></td>
+<td ><img src="https://github.com/rythm01/GoAgrics/assets/115993280/e627ec28-387b-4673-894a-f43160f1efbb" width="auto" height="auto" max-width="100%"></td>
+</tr>
+</table>
+
