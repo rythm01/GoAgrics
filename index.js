@@ -27,7 +27,7 @@ const dealer = require("./src/routes/dealerRoute");
 
 app.get("/",(req,res)=>{
     res.json({
-        message:"Route obtained"
+        message:"Route obtained on for the demo successfully"
     })
 })
 
