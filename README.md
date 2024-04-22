@@ -10,13 +10,10 @@ Welcome to the Go Agrics Backend API, the core component of the Go Agrics IdeaTh
 
 - **RESTful routing**
   
-- **Models with proper relationships**
-  
 - **Controllers/Models etc with proper separation of concerns**
   
 - **JWT Authentication**
   
-- **RESTful errors**
 
 ## Routes List:
 
